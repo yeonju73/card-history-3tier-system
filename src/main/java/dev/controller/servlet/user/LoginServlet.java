@@ -29,7 +29,7 @@ public class LoginServlet extends HttpServlet {
 
 			if (loggedInUser.equals(userId)) {
 				// 같은 유저 → 세션 재사용, 바로 이동
-				response.sendRedirect(request.getContextPath() + "/report");
+				response.sendRedirect(request.getContextPath() + "/index.html");
 				return;
 			} else {
 				// 다른 유저 → 기존 세션 폐기
