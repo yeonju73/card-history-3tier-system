@@ -2,8 +2,6 @@ package dev.filter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -17,10 +15,9 @@ import javax.servlet.http.HttpSession;
 
 public class LoginSessionCheckFilter implements Filter {
 
-    // 제외할 경로 리스트 (상수로 관리하여 가독성 향상)
-    private static final List<String> EXCLUDE_PATHS = Arrays.asList(
-        "/sample-project/login.html", "/sample-project/login", "/static/", ".css", ".js", ".png", ".jpg"
-    );
+    // 제외할 경로 리스트
+	private static final String LOGIN_PAGE         = "/login.html";
+    private static final String LOGIN_ENDPOINT     = "/login";
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -47,7 +44,11 @@ public class LoginSessionCheckFilter implements Filter {
     }
 
     private boolean isExcluded(String path) {
-        return EXCLUDE_PATHS.stream().anyMatch(path::contains) || path.equals( "/");
+        return path.endsWith(LOGIN_PAGE)
+            || path.endsWith(LOGIN_ENDPOINT)
+            || path.contains("/static/")
+            || path.endsWith(".css")
+            || path.endsWith(".js");
     }
 
     private boolean isAuthenticated(HttpSession session) {
