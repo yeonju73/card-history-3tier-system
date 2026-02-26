@@ -1,7 +1,6 @@
 package dev.controller.servlet.user;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,8 +20,15 @@ public class LoginServlet extends HttpServlet {
 	
 	@Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType("application/json;charset=UTF-8");
-        PrintWriter out = response.getWriter();
+		// 이미 로그인한 유저인지 먼저 확인
+        HttpSession existingSession = request.getSession(false);
+        if (existingSession != null && existingSession.getAttribute("loggedInUser") != null) {
+            // 이미 로그인 상태라면 메인 페이지로 즉시 이동
+            response.sendRedirect(request.getContextPath() + "/index.html");
+            return; // 메서드 종료
+        }
+		
+		response.setContentType("application/json;charset=UTF-8");
         
         // 1. 파라미터 추출 및 비즈니스 로직 (Service 호출)
         String userId = request.getParameter("userId");
@@ -63,8 +69,5 @@ public class LoginServlet extends HttpServlet {
         HttpSession session = request.getSession(true);
         session.setAttribute("loggedInUser", userId);
         
-        // 3. JSON 응답 (CSR 대응)
-        out.print("{\"status\":\"success\", \"message\":\"로그인 성공\"}");
-        out.flush();
     }
 }
