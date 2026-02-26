@@ -1,4 +1,4 @@
-package dev.sample;
+package dev.common;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
