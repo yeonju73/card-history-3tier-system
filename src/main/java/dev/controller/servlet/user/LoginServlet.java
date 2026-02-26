@@ -17,57 +17,55 @@ import dev.common.ApplicationContextListener;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
-	
+
 	@Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		// 이미 로그인한 유저인지 먼저 확인
-        HttpSession existingSession = request.getSession(false);
-        if (existingSession != null && existingSession.getAttribute("loggedInUser") != null) {
-            // 이미 로그인 상태라면 메인 페이지로 즉시 이동
-            response.sendRedirect(request.getContextPath() + "/index.html");
-            return; // 메서드 종료
-        }
-		
-		response.setContentType("application/json;charset=UTF-8");
-        
-        // 1. 파라미터 추출 및 비즈니스 로직 (Service 호출)
-        String userId = request.getParameter("userId");
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String userId = request.getParameter("userId");
 
-        // 2. Listener 를 통해 DataSource 획득
-        DataSource ds = ApplicationContextListener.getDataSource(getServletContext());
-        
-        // 3. DB 연동 로직
-        String sql = "SELECT SEQ, AGE FROM card_transaction WHERE SEQ = ?";
-        
-        try (Connection conn = ds.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-               
-               pstmt.setString(1, userId);
+		// 기존 세션 확인
+		HttpSession existingSession = request.getSession(false);
+		if (existingSession != null && existingSession.getAttribute("loggedInUser") != null) {
+			String loggedInUser = (String) existingSession.getAttribute("loggedInUser");
 
-               try (ResultSet rs = pstmt.executeQuery()) {
-                   if (rs.next()) {
-                       // 로그인 성공
-                       String SEQ = rs.getString("SEQ");
-                       
-                       // 세션 생성 및 정보 저장
-                       HttpSession session = request.getSession(); // true가 기본값
-                       session.setAttribute("loggedInUser", SEQ); 
-                       
-                       // 메인 화면으로 리다이렉트
-                       response.sendRedirect(request.getContextPath() + "/index.html");
-                   } else {
-                       // 로그인 실패 (ID 일치하는 고객 없음)
-                       response.sendRedirect(request.getContextPath() + "/login.html?error=1");
-                   }
-               }
-           } catch (SQLException e) {
-               e.printStackTrace();
-               response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "데이터베이스 연결 오류");
-           }
-        
-        // 2. 세션 처리 (Tomcat Session Clustering 공유 대상)
-        HttpSession session = request.getSession(true);
-        session.setAttribute("loggedInUser", userId);
-        
-    }
+			if (loggedInUser.equals(userId)) {
+				// 같은 유저 → 세션 재사용, 바로 이동
+				response.sendRedirect(request.getContextPath() + "/report");
+				return;
+			} else {
+				// 다른 유저 → 기존 세션 폐기
+				existingSession.invalidate();
+			}
+		}
+
+		// 2. Listener 를 통해 DataSource 획득
+		DataSource ds = ApplicationContextListener.getDataSource(getServletContext());
+
+		// 3. DB 연동 로직
+		String sql = "SELECT SEQ FROM card_transaction WHERE SEQ = ?";
+
+		try (Connection conn = ds.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setString(1, userId);
+
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) {
+					// 로그인 성공
+					String SEQ = rs.getString("SEQ");
+
+					// 세션 생성 및 정보 저장
+					HttpSession session = request.getSession(); // true가 기본값
+					session.setAttribute("loggedInUser", SEQ);
+
+					// 메인 화면으로 리다이렉트
+					response.sendRedirect(request.getContextPath() + "/index.html");
+				} else {
+					// 로그인 실패 (ID 일치하는 고객 없음)
+					response.sendRedirect(request.getContextPath() + "/login.html?error=1");
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "데이터베이스 연결 오류");
+		}
+	}
 }
