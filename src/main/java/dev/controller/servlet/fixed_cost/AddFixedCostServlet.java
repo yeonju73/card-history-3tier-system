@@ -36,10 +36,10 @@ public class AddFixedCostServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         
         // 데이터 베이스 연결
-        DataSource ds = ApplicationContextListener.getDataSource(getServletContext());
+        DataSource ds = ApplicationContextListener.getSourceDataSource(getServletContext());
 
         try (Connection conn = ds.getConnection()) {
-            String SQL = "UPDATE card_transaction SET "+ category +" = ? WHERE SEQ = ? AND BAS_YH = ?;";
+            String SQL = "UPDATE CARD_TRANSACTION SET "+ category +" = ? WHERE SEQ = ? AND BAS_YH = ?;";
             PreparedStatement pstmt = conn.prepareStatement(SQL);
             pstmt.setLong(1, cost);
             pstmt.setString(2, userNo);

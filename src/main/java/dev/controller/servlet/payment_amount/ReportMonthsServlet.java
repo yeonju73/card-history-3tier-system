@@ -35,11 +35,11 @@ public class ReportMonthsServlet extends HttpServlet {
         Gson gson = new Gson();
         
         // 데이터 베이스 연결
-        DataSource ds = ApplicationContextListener.getDataSource(getServletContext());
+        DataSource ds = ApplicationContextListener.getReplicaDataSource(getServletContext());
 
         try (Connection conn = ds.getConnection()) {
             // 여러 행을 가져오기 위해 LIMIT 제거 혹은 조정 가능
-            String SQL = "SELECT FSBZ_AM, AUTO_AM, DIST_AM,TRVL_AM, HOS_AM ,TOT_USE_AM  FROM card_transaction WHERE SEQ = ? AND BAS_YH = ?";
+            String SQL = "SELECT FSBZ_AM, AUTO_AM, DIST_AM,TRVL_AM, HOS_AM ,TOT_USE_AM  FROM CARD_TRANSACTION WHERE SEQ = ? AND BAS_YH = ?";
             PreparedStatement pstmt = conn.prepareStatement(SQL);
             pstmt.setString(1, userNo);
             pstmt.setString(2, date);

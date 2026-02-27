@@ -35,10 +35,10 @@ public class PaymentDatesServlet  extends HttpServlet{
         Gson gson = new Gson();
         
         // 데이터 베이스 연결
-        DataSource ds = ApplicationContextListener.getDataSource(getServletContext());
+        DataSource ds = ApplicationContextListener.getReplicaDataSource(getServletContext());
 
         try (Connection conn = ds.getConnection()) {
-            String SQL = "SELECT BAS_YH FROM card_transaction WHERE SEQ = ? group by BAS_YH";
+            String SQL = "SELECT BAS_YH FROM CARD_TRANSACTION WHERE SEQ = ? group by BAS_YH";
             PreparedStatement pstmt = conn.prepareStatement(SQL);
             pstmt.setString(1, userNo);
             
