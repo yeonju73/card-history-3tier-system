@@ -59,7 +59,7 @@ public class LoginServlet extends HttpServlet {
 					session.setAttribute("loggedInUser", SEQ);
 
 					// 메인 화면으로 리다이렉트
-					response.sendRedirect(request.getContextPath() + "/");
+					response.sendRedirect("/index.html");
 				} else {
 					// 로그인 실패 (ID 일치하는 고객 없음)
 					response.sendRedirect(request.getContextPath() + "/login.html?error=1");

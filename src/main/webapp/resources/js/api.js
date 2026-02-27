@@ -21,7 +21,7 @@ function getPaymentDates(userNo) {
         success: function(dates) {
 			MONTHS = dates;
 			initSelect();
-			getReportMonthsExpense("WDJXI9MJ1X41AITHZ3IU", getSelected());
+			getReportMonthsExpense("", getSelected());
         },
         error: function(xhr) {
             alert("데이터 로드 실패: " + xhr.status);
