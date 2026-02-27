@@ -26,8 +26,6 @@ public class ReportMonthsServlet extends HttpServlet {
     	HttpSession session = request.getSession(false); // 기존 세션이 있는지 확인
     	String userNo = (String) session.getAttribute("loggedInUser");
     	String date = request.getParameter("date");
-    	
-    	System.out.println(userNo+" "+date);
     
         // 응답 헤더 설정 (JSON 형식 및 인코딩)
     	response.setContentType("application/json");
@@ -43,7 +41,6 @@ public class ReportMonthsServlet extends HttpServlet {
             PreparedStatement pstmt = conn.prepareStatement(SQL);
             pstmt.setString(1, userNo);
             pstmt.setString(2, date);
-            System.out.println();
             ResultSet rs = pstmt.executeQuery();
             
             if(rs.next()) {

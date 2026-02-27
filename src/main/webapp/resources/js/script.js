@@ -31,7 +31,7 @@ function getSelected() {
 }
 
 function onMonthChange() {
-    getReportMonthsExpense("WDJXI9MJ1X41AITHZ3IU", getSelected());
+    getReportMonthsExpense("", getSelected());
 }
 
 
@@ -123,5 +123,5 @@ function renderFixedExpenses(fixedItems, key) {
 }
 
 $(document).ready(function() {
-	getPaymentDates("WDJXI9MJ1X41AITHZ3IU");
+	getPaymentDates("");
 });

@@ -1,0 +1,15 @@
+nginx/logs/
+!nginx/logs/.gitkeep
+nginx/temp/
+!nginx/temp/.gitkeep
+
+*.sql
+
+docker/mysql/
+
+
+.metadata/
+.settings/
+.vscode/
+
+**/lib/*.jar
