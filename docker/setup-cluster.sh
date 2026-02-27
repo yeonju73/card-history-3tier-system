@@ -1,21 +1,23 @@
 #!/bin/bash
 
-NETWORK="card-history-3tier-system_cluster-net"
+# Docker 네트워크 이름 자동 감지
+NETWORK=$(docker network ls --format '{{.Name}}' | grep cluster-net)
 MYSQL_IMG="mysql/mysql-server:8.0"
 
-# Docker 네트워크 안에서 mysqlsh 실행하는 함수
-run_mysqlsh() {
-  docker run --rm --network $NETWORK $MYSQL_IMG mysqlsh --no-wizard -e "$1"
-}
-
-# Docker 네트워크 안에서 mysql 실행하는 함수
-run_mysql() {
-  docker run --rm --network $NETWORK $MYSQL_IMG mysql -u root -proot1234 -h "$1" -P 3306 "${@:2}"
-}
+if [ -z "$NETWORK" ]; then
+  echo "ERROR: cluster-net 네트워크를 찾을 수 없습니다. docker-compose up -d 를 먼저 실행하세요."
+  exit 1
+fi
 
 echo "========================================="
 echo " InnoDB Cluster 자동 셋업"
+echo " 네트워크: $NETWORK"
 echo "========================================="
+
+# Docker 네트워크 안에서 mysqlsh 실행하는 함수
+run_mysqlsh() {
+  docker run --rm --network "$NETWORK" $MYSQL_IMG mysqlsh --no-wizard -e "$1"
+}
 
 # 1. configureInstance
 echo ""
@@ -28,8 +30,16 @@ echo "[Step 1] 완료"
 # 2. 데이터 복원
 echo ""
 echo "[Step 2] 데이터 복원..."
-run_mysql mysql-node1 -e "CREATE DATABASE IF NOT EXISTS card_db;"
-docker run --rm --network $NETWORK -v ~/card_db_backup.sql:/backup.sql $MYSQL_IMG mysql -u root -proot1234 -h mysql-node1 -P 3306 card_db -e "source /backup.sql"
+
+BACKUP_FILE="$HOME/card_db_backup.sql"
+if [ ! -f "$BACKUP_FILE" ]; then
+  echo "ERROR: $BACKUP_FILE 파일을 찾을 수 없습니다."
+  echo "홈 디렉토리(~/)에 card_db_backup.sql 파일을 넣어주세요."
+  exit 1
+fi
+
+docker run --rm --network "$NETWORK" $MYSQL_IMG mysql -u root -proot1234 -h mysql-node1 -P 3306 -e "CREATE DATABASE IF NOT EXISTS card_db;"
+docker run --rm -i --network "$NETWORK" -v "$BACKUP_FILE":/backup.sql $MYSQL_IMG mysql -u root -proot1234 -h mysql-node1 -P 3306 card_db -e "source /backup.sql"
 echo "[Step 2] 완료"
 
 # 3. 클러스터 생성 + 노드 추가
@@ -48,11 +58,11 @@ echo "[Step 3] 완료"
 echo ""
 echo "[Step 4] 검증..."
 echo "쓰기 포트(6446):"
-run_mysql mysql-router -P 6446 -e "SELECT @@hostname;"
+docker run --rm --network "$NETWORK" $MYSQL_IMG mysql -u root -proot1234 -h mysql-router -P 6446 -e "SELECT @@hostname;"
 echo "읽기 포트(6447):"
-run_mysql mysql-router -P 6447 -e "SELECT @@hostname;"
+docker run --rm --network "$NETWORK" $MYSQL_IMG mysql -u root -proot1234 -h mysql-router -P 6447 -e "SELECT @@hostname;"
 echo "데이터 건수:"
-run_mysql mysql-router -P 6446 -e "SELECT COUNT(*) AS total_rows FROM card_db.CARD_TRANSACTION;"
+docker run --rm --network "$NETWORK" $MYSQL_IMG mysql -u root -proot1234 -h mysql-router -P 6446 -e "SELECT COUNT(*) AS total_rows FROM card_db.CARD_TRANSACTION;"
 
 echo ""
 echo "========================================="
