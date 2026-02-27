@@ -73,3 +73,7 @@
 127.0.0.1 - - [27/Feb/2026:15:23:12 +0900] "POST /sample-project/login HTTP/1.0" 404 832 "-" "ApacheBench/2.3"
 127.0.0.1 - - [27/Feb/2026:15:23:12 +0900] "POST /sample-project/login HTTP/1.0" 404 832 "-" "ApacheBench/2.3"
 127.0.0.1 - - [27/Feb/2026:15:23:12 +0900] "POST /sample-project/login HTTP/1.0" 404 832 "-" "ApacheBench/2.3"
+127.0.0.1 - - [27/Feb/2026:16:57:59 +0900] "GET /sample-project/login.html HTTP/1.1" 200 7609 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0"
+127.0.0.1 - - [27/Feb/2026:16:58:02 +0900] "GET /favicon.ico HTTP/1.1" 404 819 "http://localhost:81/sample-project/login.html" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0"
+127.0.0.1 - - [27/Feb/2026:17:08:49 +0900] "POST /sample-project/login HTTP/1.1" 404 832 "http://localhost:81/sample-project/login.html" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0"
+127.0.0.1 - - [27/Feb/2026:17:10:14 +0900] "POST /sample-project/login HTTP/1.1" 404 832 "http://localhost:81/sample-project/login.html" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0"
