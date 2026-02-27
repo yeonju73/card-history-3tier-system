@@ -1,21 +1,43 @@
-<img width="1911" height="857" alt="스크린샷 2026-02-27 103435" src="https://github.com/user-attachments/assets/cc27be11-a97e-4882-8c36-8f93346d3eb2" />
+ # CardLedger (3-Tier Architecture)
 
-<img width="1882" height="861" alt="image" src="https://github.com/user-attachments/assets/f15e6806-2f79-4ca1-9d74-6a25c497e00d" />
-
-<img width="1901" height="331" alt="image" src="https://github.com/user-attachments/assets/2e587a73-2bbc-435b-b976-81b9c318a198" />
-
-<img width="1901" height="855" alt="image" src="https://github.com/user-attachments/assets/f58e83aa-251a-4180-89db-70a90d236533" />
-
----
-<img width="1919" height="518" alt="image" src="https://github.com/user-attachments/assets/3be14842-4ff4-4361-bb9e-315f9dbb120b" />
-
-# 3-Tier Architecture Web Application
+> 결제 내역을 한눈에 파악하는 카드 지출 관리 서비스
 
 순수 Java Servlet 기반의 3티어 아키텍처를 직접 설계하고 구현한 프로젝트입니다.
 
 ---
 
+## 서비스 소개
+
+CardLedger는 고객 번호로 간편하게 로그인하고, 카드 결제 내역을 분기별로 분석해주는 웹 애플리케이션입니다.
+
+### 주요 기능
+
+**1. 로그인**
+<img width="1911" height="857" alt="스크린샷 2026-02-27 103435" src="https://github.com/user-attachments/assets/cc27be11-a97e-4882-8c36-8f93346d3eb2" />
+- 고객 번호 기반 간편 로그인
+- 세션 관리 및 중복 로그인 처리
+- 로그아웃 시 세션 완전 폐기 (쿠키 삭제 포함)
+
+**2. 월별 소비 패턴**
+<img width="1882" height="861" alt="image" src="https://github.com/user-attachments/assets/f15e6806-2f79-4ca1-9d74-6a25c497e00d" />
+<img width="1901" height="331" alt="image" src="https://github.com/user-attachments/assets/2e587a73-2bbc-435b-b976-81b9c318a198" />
+- 분기별 총 지출 조회
+- 카테고리별 지출 현황 및 비율 시각화 (쇼핑, 식비, 의료, 교통 등)
+- 고정지출 포함/제외 토글
+- 최다 지출 카테고리 하이라이트
+
+**3. 고정지출 등록**
+<img width="1901" height="855" alt="image" src="https://github.com/user-attachments/assets/f58e83aa-251a-4180-89db-70a90d236533" />
+- 매달 반복되는 지출 항목 등록 (주거, 보험/의료, 교육, 자동차 등)
+- 세부 항목 선택 및 금액 입력
+- 적용 월(분기) 지정
+- 실시간 합계 및 등록 항목 미리보기
+
+---
+
+
 ## 아키텍처 개요
+<img width="1919" height="518" alt="image" src="https://github.com/user-attachments/assets/3be14842-4ff4-4361-bb9e-315f9dbb120b" />
 
 ```
 클라이언트
@@ -129,5 +151,5 @@ Nginx 라운드로빈으로 트래픽을 균등 분산합니다. 세션 클러�
 
 ## 개선 가능한 부분
 - Nginx SPOF 해소 (Active-Passive HA 구성)
-- WAS 캐시 도입 (로컬 캐시 또는 Hazelcast)
+- WAS 캐시 도입
 - HTTPS 적용
