@@ -14,7 +14,7 @@ import java.sql.SQLException;
 
 import com.google.gson.Gson;
 import dev.common.ApplicationContextListener;
-import dev.repository.CardTransactionDAO;
+import dev.domain.CardTransactionVO;
 
 @WebServlet("/payment/months")
 public class ReportMonthsServlet extends HttpServlet {
@@ -45,7 +45,7 @@ public class ReportMonthsServlet extends HttpServlet {
             
             if(rs.next()) {
                 // Builder 패턴을 사용하여 객체 생성 및 값 매핑
-                CardTransactionDAO transaction = CardTransactionDAO.builder()
+                CardTransactionVO transaction = CardTransactionVO.builder()
                     // 2. 고객 거래 정보 (long 매핑)
                     .totUseAm(rs.getLong("TOT_USE_AM"))
                     .crdslUseAm(rs.getLong("CRDSL_USE_AM"))
