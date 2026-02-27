@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CardLedger — 로그인</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:    #0f1117;
+    --smoke:  #f4f3ef;
+    --cream:  #faf9f6;
+    --gold:   #c9a84c;
+    --gold2:  #e8c96a;
+    --muted:  #8a8880;
+    --border: #e2e0da;
+    --red:    #c0392b;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -150px; left: -150px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .wrapper {
+    display: flex;
+    width: 820px;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 24px 64px rgba(0,0,0,0.08);
+    overflow: hidden;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(24px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  /* 왼쪽 패널 */
+  .panel-left {
+    flex: 1;
+    background: var(--ink);
+    padding: 56px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .panel-left::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 40px,
+      rgba(255,255,255,0.015) 40px,
+      rgba(255,255,255,0.015) 41px
+    );
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+  }
+  .brand-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .brand-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px; color: #fff;
+    letter-spacing: 0.5px;
+  }
+
+  .panel-copy { position: relative; }
+  .panel-copy h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px; color: #fff;
+    line-height: 1.2;
+  }
+  .panel-copy h2 span {
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .panel-bottom { position: relative; }
+  .panel-bottom p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  /* 오른쪽 폼 */
+  .panel-right {
+    flex: 1;
+    padding: 56px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .form-header { margin-bottom: 40px; }
+  .form-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px; color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .form-header p {
+    font-size: 14px; color: var(--muted); font-weight: 300;
+  }
+
+  .form-group { margin-bottom: 24px; }
+  .form-group label {
+    display: block;
+    font-size: 12px; font-weight: 600; color: var(--ink);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px; color: var(--ink);
+    background: var(--smoke); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  .form-group input:focus {
+    border-color: var(--gold);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(201,168,76,0.1);
+  }
+  .form-group input::placeholder { color: #bbb; }
+
+  .form-error {
+    font-size: 12px; color: var(--red);
+    margin-top: 6px; display: none;
+  }
+  .form-group.has-error input { border-color: var(--red); }
+  .form-group.has-error .form-error { display: block; }
+
+  .btn-login {
+    width: 100%; padding: 15px;
+    background: var(--ink); color: #fff;
+    border: none; border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px; font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    position: relative; overflow: hidden;
+  }
+  .btn-login::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(201,168,76,0.15));
+  }
+  .btn-login:hover { background: #1e2230; }
+  .btn-login:active { transform: scale(0.99); }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+  <!-- 왼쪽 패널 -->
+  <div class="panel-left">
+    <div class="brand">
+      <div class="brand-icon">💳</div>
+      <span class="brand-name">CardLedger</span>
+    </div>
+
+    <div class="panel-copy">
+      <h2>결제 내역을<br><span>한눈에</span><br>파악하세요.</h2>
+    </div>
+
+    <div class="panel-bottom">
+      <p>고객 번호로 간편하게<br>로그인할 수 있습니다.</p>
+    </div>
+  </div>
+
+  <!-- 오른쪽 폼 -->
+  <div class="panel-right">
+    <div class="form-header">
+      <h1>로그인</h1>
+      <p>고객 번호를 입력해 주세요.</p>
+    </div>
+    <div id="errorBanner" style="display:none;margin-bottom:20px;padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;font-size:13px;color:#dc2626;font-weight:500;">
+      고객 번호를 찾을 수 없습니다. 다시 확인해 주세요.
+    </div>
+
+    <form id="loginForm" action="login" method="POST" onsubmit="return handleLogin(event)">
+      <div class="form-group" id="customerGroup">
+        <label for="customerId">고객 번호</label>
+        <input type="text" id="customerId" name="userId" placeholder="고객 번호를 입력하세요" autocomplete="off">
+        <span class="form-error">고객 번호를 입력해 주세요.</span>
+      </div>
+
+      <button type="submit" class="btn-login">로그인</button>
+    </form>
+  </div>
+</div>
+
+<script>
+// 페이지 로드 시 ?error=1 이면 에러 배너 표시 (서블릿 리다이렉트 처리)
+window.addEventListener('DOMContentLoaded', function () {
+  if (new URLSearchParams(location.search).get('error') === '1') {
+    document.getElementById('errorBanner').style.display = 'block';
+  }
+});
+
+// 폼 제출 전 클라이언트 유효성 검사
+function handleLogin(e) {
+  const customerId = document.getElementById('customerId').value.trim();
+  document.getElementById('customerGroup').classList.remove('has-error');
+  document.getElementById('errorBanner').style.display = 'none';
+
+  if (!customerId) {
+    document.getElementById('customerGroup').classList.add('has-error');
+    e.preventDefault(); // 비어있으면 서버로 전송 안 함
+    return false;
+  }
+  return true; // 값 있으면 form이 POST /login 으로 정상 제출
+}
+</script>
+</body>
+</html>

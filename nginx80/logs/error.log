@@ -1,0 +1,3 @@
+2026/02/27 15:01:03 [error] 2872#36704: *4 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /login.html HTTP/1.1", upstream: "http://127.0.0.1:8090/sample-project/login.html", host: "localhost"
+2026/02/27 15:56:39 [emerg] 33100#35600: "location" directive is not allowed here in C:\Users\3-10\Desktop\card-history-3tier-system\nginx1/nginx.conf:36
+2026/02/27 17:04:35 [emerg] 8688#14380: "location" directive is not allowed here in C:\woori-workspace\sample-workspace\card-history-3tier-system\nginx80/nginx.conf:36
