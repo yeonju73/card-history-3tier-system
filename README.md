@@ -48,20 +48,28 @@ CardLedger는 고객 번호로 간편하게 로그인하고, 카드 결제 내�
 ┌─────────────────────┐
 │  Presentation 계층   │  Nginx (리버스 프록시 / 로드밸런서)
 └─────────────────────┘
-        │ 부하분산
-   ┌────┴────┐
-   ▼         ▼
-┌──────┐  ┌──────┐
-│ WAS1 │  │ WAS2 │   Application 계층 (Tomcat + Servlets & JSP)
-│ 8080 │  │ 8090 │
-└──┬───┘  └───┬──┘
-   │  HikariCP  │
+         │ 부하분산
+   ┌─────┴─────┐
    ▼           ▼
-┌──────────────────────────────┐
-│         Data 계층             │
-│  Source DB   │  Replica DB   │   MySQL (Docker Container)
-│ (Read/Write) │  (Read only)  │
-└──────────────────────────────┘
+┌──────┐    ┌──────┐
+│ WAS1 │    │ WAS2 │   Application 계층 (Tomcat + Servlets & JSP)
+│ 8080 │    │ 8090 │
+└──┬───┘    └───┬──┘
+   │  HikariCP  │
+   ▼            ▼
+┌──────────────────────────────────────────┐
+│              Data 계층                    │
+│                                          │
+│          MySQL Router (Docker)           │
+│     6446 (R/W)        6447 (R/O)         │
+│          ↓                 ↓             │
+│  ┌────────────────────────────────────┐  │
+│  │       InnoDB Cluster (Docker)      │  │
+│  │                                    │  │
+│  │  node1(PRIMARY)    node2  node3    │  │
+│  │    (R/W)         (SECONDARY, R/O)  │  │
+│  └────────────────────────────────────┘  │
+└──────────────────────────────────────────┘
 ```
 
 ---
@@ -113,12 +121,36 @@ DataSource ds = ApplicationContextListener.getSourceDataSource(getServletContext
 
 ---
 
-### Data 계층 — MySQL × 2 (Docker)
-- **Source / Replica 이중화** 구성
-- MySQL Replication으로 Source → Replica 자동 동기화
-- 코드 단에서 읽기/쓰기 라우팅 분리
-  - `SELECT` → Replica
-  - `INSERT` / `UPDATE` / `DELETE` → Source
+### Data 계층 — MySQL InnoDB Cluster (Docker)
+- **InnoDB Cluster** 3노드 구성 
+  - node1 (Source): Read/Write
+  - node2, node3 (Replica): Read Only
+- **MySQL Router**가 R/W 자동 라우팅
+  - 6446 포트 → Source (쓰기)
+  - 6447 포트 → Replica (읽기, 로드밸런싱)
+- **자동 Failover**: Source 장애 시 Replica가 자동 승격, Router가 즉시 감지하여 라우팅 변경
+- **HikariCP** DataSource 2개로 코드 단에서 R/W 분리
+  - `SELECT` → Router 6447 (Replica)
+  - `INSERT` / `UPDATE` / `DELETE` → Router 6446 (Source)
+- CARD_TRANSACTION 테이블 538만건, B-Tree 인덱스로 조회 최적화
+
+```
+┌──────────────────────────────────────────┐
+│           MySQL Router (Docker)          │
+│   포트 6446 (R/W)       포트 6447 (R/O)    │
+└────────┬────────────────────┬────────────┘
+         ↓                    ↓
+┌──────────────────────────────────────────┐
+│     InnoDB Cluster (Group Replication)   │
+│                                          │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐  │ 
+│  │  node1   │ │  node2   │ │  node3   │  │
+│  │ PRIMARY  │ │SECONDARY │ │SECONDARY │  │
+│  │  :3310   │ │  :3320   │ │  :3330   │  │
+│  └────┬─────┘ └────┬─────┘ └────┬─────┘  │
+│       └─── 자동 동기화 (복제) ──────┘        │
+└──────────────────────────────────────────┘
+```
 
 ---
 
@@ -131,8 +163,10 @@ DataSource ds = ApplicationContextListener.getSourceDataSource(getServletContext
 | WAS | Apache Tomcat × 2 |
 | Proxy / LB | Nginx |
 | DB Connection | HikariCP |
-| Database | MySQL (Docker) |
+| Database | MySQL InnoDB Cluster |
+| DB Routing | MySQL Router |
 | Session | Tomcat Cluster Replication |
+| Infra | Docker |
 
 ---
 
@@ -142,9 +176,12 @@ DataSource ds = ApplicationContextListener.getSourceDataSource(getServletContext
 프레임워크 없이 순수 Tomcat 클러스터링으로 WAS 간 세션을 공유합니다. 어느 WAS로 요청이 가더라도 동일한 세션을 보장합니다.
 
 ### 2. DB Read/Write 분리
-Source DB는 쓰기 전용, Replica DB는 읽기 전용으로 분리해 DB 부하를 분산합니다. DataSource를 두 개 등록하고 요청 유형에 따라 라우팅합니다.
+InnoDB Cluster 3노드 + MySQL Router로 DB를 이중화합니다. Router가 쓰기(6446)는 PRIMARY로, 읽기(6447)는 SECONDARY로 자동 라우팅합니다. HikariCP DataSource를 2개 등록하여 코드 단에서도 R/W를 분리합니다.
 
-### 3. 로드밸런싱
+### 3. 자동 Failover
+Source 서버 장애 시 InnoDB Cluster가 Replica를 자동 승격하고, MySQL Router가 즉시 감지하여 라우팅을 변경합니다. 애플리케이션 코드 변경 없이 무중단 운영이 가능합니다.
+
+### 4. 로드밸런싱
 Nginx 라운드로빈으로 트래픽을 균등 분산합니다. 세션 클러스터링이 되어있어 Sticky Session 없이도 정상 동작합니다.
 
 ---
