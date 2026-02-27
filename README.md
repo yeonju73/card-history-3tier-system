@@ -76,7 +76,7 @@ CardLedger는 고객 번호로 간편하게 로그인하고, 카드 결제 내�
 ```nginx
 upstream backend {
     server was1:8080;
-    server was2:8080;
+    server was2:8090;
 }
 
 server {
