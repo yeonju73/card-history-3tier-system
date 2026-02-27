@@ -18,7 +18,7 @@ import javax.sql.DataSource;
 import com.google.gson.Gson;
 
 import dev.common.ApplicationContextListener;
-import dev.repository.CardTransactionDAO;
+import dev.domain.CardTransactionVO;
 
 @WebServlet("/payment/paymentDates")
 public class PaymentDatesServlet  extends HttpServlet{
