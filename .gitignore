@@ -1,0 +1,8 @@
+nginx/logs/
+!nginx/logs/.gitkeep
+nginx/temp/
+!nginx/temp/.gitkeep
+
+.metadata/
+.settings/
+.vscode/

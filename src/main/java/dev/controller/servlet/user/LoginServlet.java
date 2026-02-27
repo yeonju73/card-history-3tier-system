@@ -1,5 +1,7 @@
 package dev.controller.servlet.user;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,6 +23,20 @@ public class LoginServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String userId = request.getParameter("userId");
+		System.out.println(userId);
+		
+//		int wasPort = request.getLocalPort(); // 8080 or 8090
+//		String nginxPort = request.getHeader("X-Nginx-Port"); // Nginx가 보내준 포트 번호
+//
+//		String logPath = "C:/Users/3-10/Desktop/card-history-3tier-system/src/main/java/dev/log.txt";
+//
+//		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logPath, true))) {
+//		    // [기록 양식] 시간 | Nginx입구 | WAS포트 | 유저ID
+//		    bw.write(String.format("[%s] NGINX:%s -> WAS:%d | ID:%s%n", 
+//		             new java.util.Date(), nginxPort, wasPort, userId));
+//		} catch (IOException e) {
+//		    e.printStackTrace();
+//		}
 
 		// 기존 세션 확인
 		HttpSession existingSession = request.getSession(false);
@@ -57,6 +73,7 @@ public class LoginServlet extends HttpServlet {
 					session.setAttribute("loggedInUser", SEQ);
 
 					// 메인 화면으로 리다이렉트
+					System.out.println("gvevr");
 					response.sendRedirect(request.getContextPath() + "/index.html");
 				} else {
 					// 로그인 실패 (ID 일치하는 고객 없음)
