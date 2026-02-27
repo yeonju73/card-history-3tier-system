@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>CardLedger — 월별 소비 패턴</title>
+		<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="resources/css/style.css">
+	</head>
+	<body>
+
+		<nav class="sidebar">
+		  <div class="brand">
+		    <div class="brand-icon">💳</div>
+		    <span class="brand-name">CardLedger</span>
+		  </div>
+		  <div class="nav-section-label">메뉴</div>
+		  <a class="nav-item active" href="/">       <span class="nav-icon">📋</span> 소비 패턴</a>
+		  <a class="nav-item" href="amount.html">     <span class="nav-icon">✏️</span> 결제 등록</a>
+		  <a class="nav-item active" href="fixed.html">         <span class="nav-icon">📌</span> 고정지출 등록</a>
+		  <div class="sidebar-bottom">
+		    <div class="user-card">
+		      <button class="logout-btn" onclick="window.location.href='login.html'" title="로그아웃">⏻</button>
+		    </div>
+		  </div>
+		</nav>
+
+		<main class="main">
+		  <div class="page-header">
+		    <div>
+		      <h1 class="page-title">월별 소비 패턴</h1>
+		    </div>
+		  </div>
+		
+		  <!-- 월 선택 -->
+		  <div class="month-nav">
+		    <span class="filter-label">조회 월</span>
+		    <select class="month-select" id="monthSelect" onchange="onMonthChange()"></select>
+		  </div>
+		
+		  <!-- 요약 -->
+		  <div class="summary-grid">
+		    <div class="sum-card">
+		      <span class="sum-icon">💸</span>
+		      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+		        <div class="sum-label" style="margin-bottom:0;">선택 월 총 지출</div>
+		        <div class="switch-wrap">
+		          <span class="switch-label" id="switchLabel">고정지출 포함</span>
+		          <label class="switch">
+		            <input type="checkbox" id="fixedToggle" checked onchange="renderAll()">
+		            <span class="switch-slider"></span>
+		          </label>
+		        </div>
+		      </div>
+		      <div class="sum-value" id="totalSpend">—</div>
+		      <div class="sum-sub" id="totalDiff">—</div>
+		    </div>
+		    <div class="sum-card">
+		      <span class="sum-icon">🏆</span>
+		      <div class="sum-label">최다 지출 카테고리</div>
+		      <div class="sum-value" id="topCat">—</div>
+		      <div class="sum-sub" id="topCatAmt">—</div>
+		    </div>
+		  </div>
+		
+		  <!-- 콘텐츠 -->
+		  <div class="content-grid">
+		    <div class="card">
+		      <div class="card-header">
+		        <div>
+		          <div class="card-title">카테고리별 지출</div>
+		          <div class="card-sub" id="catSubLabel">—</div>
+		        </div>
+		      </div>
+		      <div class="card-body" id="catBars"></div>
+		    </div>
+		
+		    <!-- 고정지출 조회 -->
+		    <div class="card">
+		      <div class="card-header">
+		        <div>
+		          <div class="card-title">📌 고정지출</div>
+		          <div class="card-sub" id="fixedSubLabel">—</div>
+		        </div>
+		      </div>
+		      <div class="card-body">
+		        <div class="fixed-grid" id="fixedGrid"></div>
+		        <div class="fixed-total-row">
+		          <span class="fixed-total-label">고정지출 합계</span>
+		          <span class="fixed-total-amt" id="fixedTotal">—</span>
+		        </div>
+		      </div>
+		    </div>
+		  </div>
+		</main>
+
+		<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+		<script src="resources/js/api.js"></script>
+		<script src="resources/js/script.js"></script>
+	</body>
+</html>

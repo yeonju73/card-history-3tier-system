@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CardLedger — 고정지출 등록</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="resources/css/style.css">
+  <link rel="stylesheet" href="resources/css/fixed.css">
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="brand">
+    <div class="brand-icon">💳</div>
+    <span class="brand-name">CardLedger</span>
+  </div>
+  <div class="nav-section-label">메뉴</div>
+  <a class="nav-item" href="/">    <span class="nav-icon">📋</span> 소비 패턴</a>
+  <a class="nav-item" href="amount.html">       <span class="nav-icon">✏️</span> 결제 등록</a>
+  <a class="nav-item active" href="fixed.html">         <span class="nav-icon">📌</span> 고정지출 등록</a>
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar">김</div>
+      <div class="user-info">
+        <div class="user-name">김철수</div>
+        <div class="user-role">일반 사용자</div>
+      </div>
+      <button class="logout-btn" onclick="window.location.href='login.html'" title="로그아웃">⏻</button>
+    </div>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <h1 class="page-title">고정지출 등록</h1>
+    <p class="page-sub">매달 반복되는 지출 항목을 선택하고 금액을 입력하세요.</p>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">항목 선택</div>
+        </div>
+        <div class="card-body">
+          <div class="tab-bar" id="tabBar"></div>
+          <div id="panels"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">금액 입력</div>
+        </div>
+        <div class="card-body">
+          <div class="amount-rows" id="amountRows">
+            <p class="empty-msg">위에서 항목을 선택하면 여기에 표시돼요.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-stack">
+      <div class="summary-total">
+        <div class="st-label">이번 달 고정지출 합계</div>
+        <div class="st-amount" id="totalAmount">₩ 0</div>
+        <div class="st-count" id="totalCount">선택된 항목 없음</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">등록 항목</div>
+        </div>
+        <div class="card-body" style="padding:8px 20px;">
+          <div class="registered-list" id="registeredList">
+            <p class="empty-side">선택된 항목이 없어요.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="padding:18px 20px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">적용 월</label>
+            <select class="form-select" id="applyMonth"></select>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="submitBtn" disabled onclick="submitFixed()">
+        💾 고정지출 등록
+      </button>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast">✅ 고정지출이 등록되었습니다.</div>
+
+		<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+		<script src="resources/js/api.js"></script>
+		<script src="resources/js/fixed.js"></script>
+</body>
+</html>
