@@ -1,4 +1,4 @@
-.metadata/
-  build/
+build/
+  .metadata/
   .settings/
   *.class
