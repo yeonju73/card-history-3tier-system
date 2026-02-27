@@ -3,58 +3,70 @@
 ## 사전 준비
 
 - Docker Desktop 설치 및 실행
-- 백업 파일 `card_db_backup.sql`을 홈 디렉토리(`~/`)에 저장
-
-> MySQL Shell, MySQL Client 등 별도 설치 불필요. 모든 명령이 Docker 안에서 실행됨.
+- MySQL Shell 설치
+  - Mac: `brew install mysql-shell`
+  - Windows: [공식 다운로드](https://dev.mysql.com/downloads/shell/) 에서 MSI 설치
+- 백업 파일 `card_db_backup.sql`을 프로젝트 루트 폴더(docker-compose.yml이 있는 곳)에 저장
 
 ## Step 1. 컨테이너 실행
-
-프로젝트 루트에서:
 
 ```bash
 docker-compose up -d
 ```
 
-3개 노드 모두 healthy 될 때까지 대기 (약 30초~1분):
+`docker ps`에서 3개 노드 모두 `(healthy)` 될 때까지 대기 (약 30초~1분)
+
+## Step 2. configureInstance
 
 ```bash
-docker ps
+mysqlsh --no-wizard -e "dba.configureInstance('clusteradmin:admin1234@127.0.0.1:3310', {restart: true})"
+mysqlsh --no-wizard -e "dba.configureInstance('clusteradmin:admin1234@127.0.0.1:3320', {restart: true})"
+mysqlsh --no-wizard -e "dba.configureInstance('clusteradmin:admin1234@127.0.0.1:3330', {restart: true})"
 ```
 
-STATUS에 `(healthy)` 3개 보이면 다음 단계.
+실행 후 `docker ps`에서 3개 노드 다시 `(healthy)` 확인
 
-## Step 2. 클러스터 자동 셋업
+## Step 3. 데이터 복원
 
 ```bash
-./docker/setup-cluster.sh
+docker exec mysql-node1 mysql -u root -proot1234 -e "CREATE DATABASE IF NOT EXISTS card_db;"
+docker cp ./card_db_backup.sql mysql-node1:/backup.sql
+docker exec mysql-node1 bash -c "mysql -u root -proot1234 card_db < /backup.sql"
 ```
 
-이 스크립트가 아래 작업을 자동으로 수행:
-1. configureInstance (3대)
-2. 데이터 복원 (`~/card_db_backup.sql`)
-3. 클러스터 생성 + 노드 추가
-4. 라우터/데이터 검증
+> 538만건이라 수 분 소요될 수 있음
 
-완료 시 "셋업 완료!" 메시지가 출력됨.
-
-## Step 3. 검증 (선택)
-
-스크립트가 자동으로 검증하지만, 직접 확인하고 싶으면:
+## Step 4. 클러스터 생성 + 노드 추가
 
 ```bash
-# 쓰기 포트 확인 (PRIMARY 노드 반환)
-docker run --rm --network card-history-3tier-system_cluster-net mysql/mysql-server:8.0 \
-  mysql -u root -proot1234 -h mysql-router -P 6446 -e "SELECT @@hostname;"
-
-# 읽기 포트 확인 (SECONDARY 노드 반환)
-docker run --rm --network card-history-3tier-system_cluster-net mysql/mysql-server:8.0 \
-  mysql -u root -proot1234 -h mysql-router -P 6447 -e "SELECT @@hostname;"
-
-# 데이터 건수 확인
-docker run --rm --network card-history-3tier-system_cluster-net mysql/mysql-server:8.0 \
-  mysql -u root -proot1234 -h mysql-router -P 6446 -e "SELECT COUNT(*) FROM card_db.CARD_TRANSACTION;"
-# → 5,380,000건 이상 나오면 정상
+mysqlsh --no-wizard -e "
+shell.connect('clusteradmin:admin1234@127.0.0.1:3310');
+var cluster = dba.createCluster('cardCluster');
+cluster.addInstance('clusteradmin:admin1234@127.0.0.1:3320', {recoveryMethod: 'incremental'});
+cluster.addInstance('clusteradmin:admin1234@127.0.0.1:3330', {recoveryMethod: 'incremental'});
+print(cluster.status());
+"
 ```
+
+3대 모두 `ONLINE`, status `"OK"` 나오면 성공.
+
+> 로컬에 MySQL이 3306에서 실행 중이면 addInstance에서 에러날 수 있음. 이 경우 로컬 MySQL을 중지하거나, Step 4만 Docker 안에서 실행:
+> ```bash
+> docker run -it --network <네트워크이름>_cluster-net mysql/mysql-server:8.0 mysqlsh
+> ```
+> 네트워크 이름은 `docker network ls`에서 확인
+
+## Step 5. 검증
+
+```bash
+docker exec mysql-node1 mysql -u root -proot1234 -h mysql-router -P 6446 -e "SELECT @@hostname;"
+docker exec mysql-node1 mysql -u root -proot1234 -h mysql-router -P 6447 -e "SELECT @@hostname;"
+docker exec mysql-node1 mysql -u root -proot1234 -e "SELECT COUNT(*) FROM card_db.CARD_TRANSACTION;"
+```
+
+- 6446: PRIMARY 노드 이름 반환
+- 6447: SECONDARY 노드 이름 반환
+- 538만건 이상 나오면 정상
 
 ## 접속 정보 요약
 
@@ -84,12 +96,15 @@ docker-compose up -d
 
 ## 트러블슈팅
 
-### 스크립트 실행 권한 없음
-```bash
-chmod +x ./docker/setup-cluster.sh
-```
+### configureInstance 후 노드가 안 올라옴
+- `docker ps`에서 healthy 확인 후 다음 단계 진행
+- 안 뜨면 `docker-compose down -v` 후 Step 1부터 다시
 
-### 스크립트 실행 중 에러
-- 컨테이너가 healthy 상태인지 `docker ps`로 확인
-- healthy가 아니면 잠시 기다린 후 다시 실행
-- 그래도 안 되면 `docker-compose down -v` 후 Step 1부터 다시
+### addInstance에서 Access denied
+- 로컬 MySQL이 3306에서 실행 중인지 확인
+- 실행 중이면 `brew services stop mysql` 후 재시도
+- 또는 Docker 안에서 mysqlsh 실행 (Step 4 참고)
+
+### 데이터 복원 실패
+- `card_db_backup.sql` 파일이 프로젝트 루트에 있는지 확인
+- `docker ps`에서 mysql-node1이 healthy인지 확인

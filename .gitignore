@@ -1,4 +1,5 @@
 build/
-  .metadata/
-  .settings/
-  *.class
+.metadata/
+.settings/
+*.class
+card_db_backup.sql
