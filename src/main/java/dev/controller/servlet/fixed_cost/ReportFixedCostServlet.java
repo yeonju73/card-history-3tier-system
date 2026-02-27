@@ -12,7 +12,7 @@ import java.io.PrintWriter;
 public class ReportFixedCostServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType("application/json;charset=UTF-8");
+    	response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         
         HttpSession session = request.getSession(false);

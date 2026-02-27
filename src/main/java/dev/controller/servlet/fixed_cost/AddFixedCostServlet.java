@@ -18,19 +18,21 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet("/fixedcost/add")
+@WebServlet("/addfixedcost")
 public class AddFixedCostServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     	long cost = 0L;
     	
-		String userNo = request.getParameter("userNo");
+    	HttpSession session = request.getSession(false); // 기존 세션이 있는지 확인
+    	String userNo = (String) session.getAttribute("loggedInUser");
+    	
     	cost = Long.parseLong(request.getParameter("cost"));
     	String category = request.getParameter("category");
     	String date = request.getParameter("date");
     
         // 응답 헤더 설정 (JSON 형식 및 인코딩)
-        response.setContentType("application/json;charset=UTF-8");
+        response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         
         // 데이터 베이스 연결

@@ -1,5 +1,3 @@
-console.log('script.js 로드됨');
-
 let currentData = null; // 서버 데이터를 보관할 창고
 
 let MONTHS = [];
@@ -39,19 +37,31 @@ function onMonthChange() {
 
 
 function transformData(db) {
+  // 1. 우리가 분류한 5개 카테고리의 합계를 먼저 구합니다.
+  const assignedSum = 
+    (db.fsbzAm || 0) + 
+    (db.autoAm || 0) + 
+    (db.distAm || 0) + 
+    (db.trvlecAm || 0) + 
+    (db.hosAm || 0);
+
+  // 2. 전체 지출(totUseAm)에서 위 합계를 뺀 나머지가 '기타'가 됩니다.
+  // 계산 결과가 음수가 나오지 않도록 Math.max를 사용합니다.
+  const otherAm = Math.max(0, (db.totUseAm || 0) - assignedSum);
+
   return {
-    total: db.totUseAm,
+    total: db.totUseAm || 0,
     cats: {
-      '식비': db.fsbzAm,
-      '교통': db.autoAm,
-      '쇼핑': db.distAm,
-      '여행/문화': db.trvlecAm,
+      '식비': db.fsbzAm || 0,
+      '교통': db.autoAm || 0,
+      '쇼핑': db.distAm || 0,
+      '여행/문화': db.trvlecAm || 0,
       '의료': db.hosAm || 0,
-      '기타': db.svcarcAm || 0
+      '기타': otherAm
     },
     fixed: [
-      { emoji: '🏥', name: '보험/의료', amt: db.insuhosAm },
-      { emoji: '📚', name: '교육/사무', amt: db.offeduAm }
+      { emoji: '🏥', name: '보험/의료', amt: db.insuhosAm || 0 },
+      { emoji: '📚', name: '교육/사무', amt: db.offeduAm || 0 }
     ]
   };
 }
