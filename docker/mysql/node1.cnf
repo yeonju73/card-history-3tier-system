@@ -6,6 +6,7 @@ socket=/var/lib/mysql/mysql.sock
 secure-file-priv=/var/lib/mysql-files
 user=mysql
 pid-file=/var/run/mysqld/mysqld.pid
+lower_case_table_names=1
 
 server-id=1
 log-bin=mysql-bin
