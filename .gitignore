@@ -6,3 +6,5 @@ nginx/temp/
 .metadata/
 .settings/
 .vscode/
+/build/
+/card_db_backup.sql/

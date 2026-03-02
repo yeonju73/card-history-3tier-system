@@ -56,7 +56,6 @@ let selected = {};
  * [초기화] 페이지 로드 시 가장 먼저 실행되는 함수
  */
 function init() {
-  console.log("페이지 초기화 시작...");
   
   // 1. 화면의 정적 요소(탭, 버튼 패널)를 먼저 그립니다.
   renderTabs();
@@ -64,7 +63,7 @@ function init() {
   
   // 2. [핵심] 서버로부터 사용자의 실제 결제 분기 리스트를 가져옵니다.
   // 이 함수는 api.js에 정의되어 있어야 하며, 성공 시 initApplyMonthSelect를 실행합니다.
-  const userNo = "WDJXI9MJ1X41AITHZ3IU"; 
+  const userNo = ""; 
   getPaymentDatesForFixed(userNo); 
   
   // 3. 첫 번째 탭을 기본으로 보여줍니다.
@@ -235,7 +234,7 @@ function submitFixed() {
   }
 
   const date = document.getElementById('applyMonth').value;
-  const userNo = "WDJXI9MJ1X41AITHZ3IU";
+  const userNo = "";
 
   // 서블릿의 단일 업데이트 구조에 맞춰 개별 전송
   keys.forEach(id => {
@@ -308,7 +307,7 @@ function submitFixed() {
   }
 
   const month = document.getElementById('applyMonth').value; // 이제 '2023q3' 형태
-  const userNo = "WDJXI9MJ1X41AITHZ3IU";
+  const userNo = "";
 
   // 개별 항목 전송
   keys.forEach(id => {

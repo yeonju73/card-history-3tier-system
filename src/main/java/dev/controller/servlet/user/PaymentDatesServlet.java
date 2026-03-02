@@ -27,7 +27,6 @@ public class PaymentDatesServlet  extends HttpServlet{
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		HttpSession session = request.getSession(false); // 기존 세션이 있는지 확인
     	String userNo = (String) session.getAttribute("loggedInUser");
-    	String date = request.getParameter("date");
     
         // 응답 헤더 설정 (JSON 형식 및 인코딩)
     	response.setContentType("application/json");

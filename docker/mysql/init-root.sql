@@ -1,0 +1,6 @@
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'root1234';
+CREATE USER IF NOT EXISTS 'clusteradmin'@'%' IDENTIFIED BY 'admin1234';
+GRANT ALL PRIVILEGES ON *.* TO 'clusteradmin'@'%' WITH GRANT OPTION;
+CREATE USER IF NOT EXISTS 'clusteradmin'@'localhost' IDENTIFIED BY 'admin1234';
+GRANT ALL PRIVILEGES ON *.* TO 'clusteradmin'@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;

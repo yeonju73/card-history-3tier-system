@@ -1,0 +1,97 @@
+services:
+    mysql-node1:
+      image: mysql/mysql-server:8.0
+      container_name: mysql-node1
+      hostname: mysql-node1
+      ports:
+        - "3310:3306"
+      environment:
+        MYSQL_ROOT_PASSWORD: root1234
+        MYSQL_ROOT_HOST: '%'
+      volumes:
+        - mysql-node1-data:/var/lib/mysql
+        - ./docker/mysql/node1.cnf:/etc/my.cnf
+        - ./docker/mysql/init-root.sql:/docker-entrypoint-initdb.d/init-root.sql
+      networks:
+        - cluster-net
+      healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot1234"]
+        interval: 5s
+        timeout: 3s
+        retries: 20
+        start_period: 30s
+
+    mysql-node2:
+      image: mysql/mysql-server:8.0
+      container_name: mysql-node2
+      hostname: mysql-node2
+      ports:
+        - "3320:3306"
+      environment:
+        MYSQL_ROOT_PASSWORD: root1234
+        MYSQL_ROOT_HOST: '%'
+      volumes:
+        - mysql-node2-data:/var/lib/mysql
+        - ./docker/mysql/node2.cnf:/etc/my.cnf
+        - ./docker/mysql/init-root.sql:/docker-entrypoint-initdb.d/init-root.sql
+      networks:
+        - cluster-net
+      healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot1234"]
+        interval: 5s
+        timeout: 3s
+        retries: 20
+        start_period: 30s
+
+    mysql-node3:
+      image: mysql/mysql-server:8.0
+      container_name: mysql-node3
+      hostname: mysql-node3
+      ports:
+        - "3330:3306"
+      environment:
+        MYSQL_ROOT_PASSWORD: root1234
+        MYSQL_ROOT_HOST: '%'
+      volumes:
+        - mysql-node3-data:/var/lib/mysql
+        - ./docker/mysql/node3.cnf:/etc/my.cnf
+        - ./docker/mysql/init-root.sql:/docker-entrypoint-initdb.d/init-root.sql
+      networks:
+        - cluster-net
+      healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot1234"]
+        interval: 5s
+        timeout: 3s
+        retries: 20
+        start_period: 30s
+
+    mysql-router:
+      image: mysql/mysql-router:8.0
+      container_name: mysql-router
+      ports:
+        - "6446:6446"
+        - "6447:6447"
+      environment:
+        MYSQL_HOST: mysql-node1
+        MYSQL_PORT: "3306"
+        MYSQL_USER: root
+        MYSQL_PASSWORD: root1234
+      depends_on:
+        mysql-node1:
+          condition: service_healthy
+        mysql-node2:
+          condition: service_healthy
+        mysql-node3:
+          condition: service_healthy
+      networks:
+        - cluster-net
+      restart: on-failure
+
+volumes:
+  mysql-node1-data:
+  mysql-node2-data:
+  mysql-node3-data:
+
+networks:
+  cluster-net:
+    driver: bridge
