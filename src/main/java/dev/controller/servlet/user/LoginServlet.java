@@ -38,10 +38,10 @@ public class LoginServlet extends HttpServlet {
 		}
 
 		// 2. Listener 를 통해 DataSource 획득
-		DataSource ds = ApplicationContextListener.getDataSource(getServletContext());
+		DataSource ds = ApplicationContextListener.getReplicaDataSource(getServletContext());
 
 		// 3. DB 연동 로직
-		String sql = "SELECT SEQ FROM card_transaction WHERE SEQ = ?";
+		String sql = "SELECT SEQ FROM CARD_TRANSACTION WHERE SEQ = ?";
 
 		try (Connection conn = ds.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -55,7 +55,6 @@ public class LoginServlet extends HttpServlet {
 					// 세션 생성 및 정보 저장
 					HttpSession session = request.getSession(); // true가 기본값
 					session.setAttribute("loggedInUser", SEQ);
-
 					// 메인 화면으로 리다이렉트
 					response.sendRedirect(request.getContextPath() + "/index.html");
 				} else {

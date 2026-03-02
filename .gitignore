@@ -1,15 +1,151 @@
-nginx/logs/
-!nginx/logs/.gitkeep
-nginx/temp/
-!nginx/temp/.gitkeep
+# ============================================
+# Java & Build
+# ============================================
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
 
-*.sql
+# Build directories
+build/
+target/
+dist/
+out/
+bin/
 
-docker/mysql/
-
-
+# ============================================
+# Eclipse
+# ============================================
 .metadata/
 .settings/
-.vscode/
+.classpath
+.project
+.apt_generated/
+.apt_generated_tests/
+.factorypath
+.springBeans
+.sts4-cache/
 
-**/lib/*.jar
+# ============================================
+# IntelliJ IDEA
+# ============================================
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# ============================================
+# VS Code
+# ============================================
+.vscode/
+*.code-workspace
+
+# ============================================
+# Nginx
+# ============================================
+nginx/logs/*.log
+nginx/logs/*.pid
+!nginx/logs/.gitkeep
+nginx/temp/*
+!nginx/temp/.gitkeep
+nginx/temp/*/
+
+nginx81/logs/*.log
+nginx81/logs/*.pid
+!nginx81/logs/.gitkeep
+nginx81/temp/*
+!nginx81/temp/.gitkeep
+nginx81/temp/*/
+
+docker/nginx/logs/*.log
+docker/nginx/logs/*.pid
+!docker/nginx/logs/.gitkeep
+docker/nginx/temp/*
+!docker/nginx/temp/.gitkeep
+docker/nginx/temp/*/
+
+# ============================================
+# MySQL & Database
+# ============================================
+*.sql
+docker/mysql/*.sql
+docker/mysql/data/
+
+# MySQL 설정 파일은 유지하되 데이터는 제외
+!docker/mysql/*.cnf
+!docker/mysql/*.sh
+
+# ============================================
+# Docker
+# ============================================
+# Docker 볼륨 데이터
+docker/volumes/
+mysql-node*-data/
+
+# Docker 로그
+docker/**/*.log
+
+# ============================================
+# OS
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+
+# ============================================
+# Logs
+# ============================================
+*.log
+logs/
+*.log.*
+
+# ============================================
+# Temporary files
+# ============================================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.#*
+
+# ============================================
+# Security & Credentials
+# ============================================
+*.key
+*.pem
+*.p12
+*.jks
+*.keystore
+.env
+.env.local
+secrets/
+credentials/
+
+# ============================================
+# Kiro AI
+# ============================================
+.kiroignore
+.kiro/cache/
+.kiro/temp/
+
+# ============================================
+# Application specific
+# ============================================
+# WAR 파일은 제외하되, 배포용은 별도 관리
+# src/main/webapp/WEB-INF/lib/*.jar 는 이미 위에서 제외됨

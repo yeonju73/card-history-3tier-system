@@ -87,6 +87,88 @@ services:
         - cluster-net
       restart: on-failure
 
+# --- 신규 추가 (Redis & WAS) ---
+    redis-session:
+      image: redis:alpine
+      container_name: redis-session
+      ports:
+        - "6379:6379"
+      networks:
+        - cluster-net
+
+    was-8080:
+      image: tomcat:9-jdk17 # 실제 사용 환경에 맞춰 변경 (예: openjdk:11-jre)
+      container_name: was-8080
+      ports:
+        - "8080:8080"
+      volumes:
+        - ./card-history-3tier-system.war:/usr/local/tomcat/webapps/ROOT.war
+      environment:
+        - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-router:6446/card_db
+        - SPRING_REDIS_HOST=redis-session
+        - SPRING_SESSION_STORE_TYPE=redis
+      depends_on:
+        - mysql-router
+        - redis-session
+      networks:
+        - cluster-net
+
+    was-8090:
+      image: tomcat:9-jdk17
+      container_name: was-8090
+      ports:
+        - "8090:8080" # 호스트 8090 -> 컨테이너 8080
+      volumes:
+        - ./card-history-3tier-system.war:/usr/local/tomcat/webapps/ROOT.war
+      environment:
+        - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-router:6446/card_db
+        - SPRING_REDIS_HOST=redis-session
+        - SPRING_SESSION_STORE_TYPE=redis
+      depends_on:
+        - mysql-router
+        - redis-session
+      networks:
+        - cluster-net
+
+    master-nginx:
+      image: nginx:alpine
+      container_name: master-nginx
+      ports:
+        - "80:80"
+      volumes:
+        - ./docker/nginx/master-nginx.conf:/etc/nginx/nginx.conf:ro
+      networks:
+        - cluster-net
+      depends_on:
+        - worker-nginx-1
+        - worker-nginx-2
+
+    worker-nginx-1:
+      image: nginx:alpine
+      container_name: worker-nginx-1
+      expose:
+        - "80"
+      volumes:
+        - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      networks:
+        - cluster-net
+      depends_on:
+        - was-8080
+        - was-8090
+
+    worker-nginx-2:
+      image: nginx:alpine
+      container_name: worker-nginx-2
+      expose:
+        - "80"
+      volumes:
+        - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      networks:
+        - cluster-net
+      depends_on:
+        - was-8080
+        - was-8090
+
 volumes:
   mysql-node1-data:
   mysql-node2-data:

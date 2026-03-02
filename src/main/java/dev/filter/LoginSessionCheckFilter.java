@@ -70,7 +70,7 @@ public class LoginSessionCheckFilter implements Filter {
         }
 
         // JSESSIONID 쿠키 삭제 (Path 주의: 컨텍스트 경로에 맞춤)
-        deleteCookie(request, response, "JSESSIONID");
+        deleteCookie(request, response, "REDIS_SESSION_ID");
 
         if (isAjaxRequest(request)) {
             sendJsonError(response);
