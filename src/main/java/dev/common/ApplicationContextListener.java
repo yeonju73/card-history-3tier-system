@@ -12,7 +12,8 @@ import com.zaxxer.hikari.HikariDataSource;
 @WebListener
 public class ApplicationContextListener implements ServletContextListener {
 
-    private HikariDataSource ds;
+	private HikariDataSource sourceDs;
+    private HikariDataSource replicaDs;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -25,12 +26,15 @@ public class ApplicationContextListener implements ServletContextListener {
 			e.printStackTrace();
 		}
 
-        HikariConfig config = new HikariConfig();
+        HikariConfig sourceConfig  = new HikariConfig();
         // 필수 설정값(별도의 설정파일로 분리 가능, ex. jdbc.properties)
-        config.setJdbcUrl("jdbc:mysql://localhost:3306/card_db?serverTimezone=Asia/Seoul");
-        config.setUsername("root");
-        config.setPassword("1234");
-
+        // port : 
+        sourceConfig .setJdbcUrl("jdbc:mysql://localhost:6446/card_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8");
+        sourceConfig .setUsername("root");
+        sourceConfig .setPassword("root1234");
+        sourceConfig.setReadOnly(false);
+        sourceConfig.setPoolName("SourcePool");
+         
         // 선택 설정값 예시
 //        config.setMaximumPoolSize(10);
 //        config.setMinimumIdle(2);
@@ -38,17 +42,34 @@ public class ApplicationContextListener implements ServletContextListener {
 //        config.setIdleTimeout(600000);
 //        config.setMaxLifetime(1800000);
 
-        ds = new HikariDataSource(config);
-
-        ctx.setAttribute("DATA_SOURCE", ds);
+        sourceDs = new HikariDataSource(sourceConfig);
+        ctx.setAttribute("SOURCE_DATA_SOURCE", sourceDs);
+        
+        HikariConfig replicaConfig = new HikariConfig();
+        replicaConfig.setJdbcUrl("jdbc:mysql://localhost:6447/card_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8");
+        replicaConfig.setUsername("root");
+        replicaConfig.setPassword("root1234");
+        replicaConfig.setReadOnly(true);
+	    // 조회 요청이 많으므로 풀 사이즈를 더 크게 잡는 것이 유리
+        replicaConfig.setMaximumPoolSize(20);
+        replicaConfig.setPoolName("ReplicaPool");
+        
+        replicaDs = new HikariDataSource(replicaConfig);
+        ctx.setAttribute("REPLICA_DATA_SOURCE", replicaDs);
+        
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        if (ds != null) ds.close(); // 애플리케이션 종료 시 커넥션 풀 자원해제
+    	if (sourceDs  != null) sourceDs.close();
+        if (replicaDs != null) replicaDs.close(); // 애플리케이션 종료 시 커넥션 풀 자원해제
+    }
+    
+    public static DataSource getSourceDataSource(ServletContext ctx) {
+        return (DataSource) ctx.getAttribute("SOURCE_DATA_SOURCE");
     }
 
-    public static DataSource getDataSource(ServletContext ctx) {
-        return (DataSource) ctx.getAttribute("DATA_SOURCE");
+    public static DataSource getReplicaDataSource(ServletContext ctx) {
+        return (DataSource) ctx.getAttribute("REPLICA_DATA_SOURCE");
     }
 }
