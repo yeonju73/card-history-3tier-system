@@ -611,6 +611,7 @@ flowchart TB
 
 <details>
 <summary><b>📄 docker/mysql/node1.cnf</b> (Source 노드)</summary>
+
 ```ini
 [mysqld]
 server-id=1
