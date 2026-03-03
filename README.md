@@ -670,6 +670,7 @@ report-host=mysql-node3
 
 <details>
 <summary><b>🔧 Replication 설정 SQL</b> (클릭하여 펼치기)</summary>
+
 ```sql
 -- Source 노드에서 복제 사용자 생성
 CREATE USER 'repl'@'%' IDENTIFIED BY 'password';
@@ -707,7 +708,8 @@ START SLAVE;
 <summary><b>MySQL Cluster 연결 실패</b></summary>
 
 1. MySQL 노드가 모두 실행 중인지 확인
-   ```bash
+
+    ```bash
    docker-compose ps | grep mysql
    ```
 
