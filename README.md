@@ -25,6 +25,7 @@ docker-compose up -d mysql-node1 mysql-node2 mysql-node3
 # 2. MySQL Cluster 초기 세팅 (아래 "MySQL Cluster 초기 세팅" 섹션 참고)
 
 # 3. MySQL Router 시작
+echo y | docker exec -i mysql-node1 mysqlsh --no-wizard -e "shell.connect('clusteradmin:admin1234@mysql-node1:3306');dba.rebootClusterFromCompleteOutage('cardCluster');print(dba.getCluster('cardCluster').status());"
 docker-compose up -d mysql-router
 
 # 4. Redis 시작
