@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/3-10/Desktop/card-history-3tier-system -name \"*.classpath\" -o -name \".classpath\" 2>/dev/null | sort\nfind /c/Users/3-10/Desktop/card-history-3tier-system -name \"*.project\" -o -name \".project\" 2>/dev/null | sort)",
+      "Bash(do:*)",
+      "Bash(find /c/Users/3-10/.m2/repository -name \"jedis*.jar\" 2>/dev/null | sort\nfind /c/Users/3-10/.m2/repository -path \"*jedis*\" 2>/dev/null | sort)",
+      "Bash(curl:*)",
+      "Bash(ls:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(xargs grep:*)"
+    ]
+  }
+}
