@@ -1,9 +1,9 @@
 package dev.controller.servlet.user;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+// import java.sql.Connection;      // [주석처리] Service 계층으로 이동
+// import java.sql.PreparedStatement; // [주석처리] Service 계층으로 이동
+// import java.sql.ResultSet;        // [주석처리] Service 계층으로 이동
 import java.sql.SQLException;
 
 import javax.servlet.annotation.WebServlet;
@@ -11,9 +11,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.sql.DataSource;
+// import javax.sql.DataSource;  // [주석처리] Spring Bean이 관리
+
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import dev.common.ApplicationContextListener;
+import dev.service.LoginService;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
@@ -37,30 +40,41 @@ public class LoginServlet extends HttpServlet {
 			}
 		}
 
-		// 2. Listener 를 통해 DataSource 획득
-		DataSource ds = ApplicationContextListener.getReplicaDataSource(getServletContext());
+		// 2. Spring Context에서 LoginService 빈 획득
+		AnnotationConfigApplicationContext springCtx = ApplicationContextListener.getSpringContext(getServletContext());
+		LoginService loginService = springCtx.getBean(LoginService.class);
 
-		// 3. DB 연동 로직
-		String sql = "SELECT SEQ FROM CARD_TRANSACTION WHERE SEQ = ?";
+//		// [주석처리] DataSource 직접 획득 방식
+//		DataSource ds = ApplicationContextListener.getDataSource(getServletContext());
 
-		try (Connection conn = ds.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+//		// [주석처리] 직접 DB 연동 로직
+//		String sql = "SELECT SEQ FROM CARD_TRANSACTION WHERE SEQ = ?";
+//		try (Connection conn = ds.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+//			pstmt.setString(1, userId);
+//			try (ResultSet rs = pstmt.executeQuery()) {
+//				if (rs.next()) {
+//					String SEQ = rs.getString("SEQ");
+//					HttpSession session = request.getSession();
+//					session.setAttribute("loggedInUser", SEQ);
+//					response.sendRedirect(request.getContextPath() + "/index.html");
+//				} else {
+//					response.sendRedirect(request.getContextPath() + "/login.html?error=1");
+//				}
+//			}
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "데이터베이스 연결 오류");
+//		}
 
-			pstmt.setString(1, userId);
-
-			try (ResultSet rs = pstmt.executeQuery()) {
-				if (rs.next()) {
-					// 로그인 성공
-					String SEQ = rs.getString("SEQ");
-
-					// 세션 생성 및 정보 저장
-					HttpSession session = request.getSession(); // true가 기본값
-					session.setAttribute("loggedInUser", SEQ);
-					// 메인 화면으로 리다이렉트
-					response.sendRedirect(request.getContextPath() + "/index.html");
-				} else {
-					// 로그인 실패 (ID 일치하는 고객 없음)
-					response.sendRedirect(request.getContextPath() + "/login.html?error=1");
-				}
+		// 3. 서비스 호출
+		try {
+			String seq = loginService.login(userId);
+			if (seq != null) {
+				HttpSession session = request.getSession();
+				session.setAttribute("loggedInUser", seq);
+				response.sendRedirect(request.getContextPath() + "/index.html");
+			} else {
+				response.sendRedirect(request.getContextPath() + "/login.html?error=1");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
